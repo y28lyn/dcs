@@ -1,0 +1,16 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+* {
+  font-family: "Helvetica Neue", sans-serif;
+}
+
+::selection {
+  background-color: #e845456a;
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+}
