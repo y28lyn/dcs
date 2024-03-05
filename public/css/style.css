@@ -3,8 +3,11 @@
 @import "tailwindcss/utilities";
 
 * {
-  font-family: "Helvetica Neue", sans-serif;
   scroll-behavior: smooth;
+}
+
+body {
+  font-family: Montserrat, Arial, sans-serif;
 }
 
 ::selection {

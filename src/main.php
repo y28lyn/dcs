@@ -83,15 +83,14 @@
     <header class="z-50 fixed right-0 top-0 left-60 bg-yellow-50 px-4 py-5 border-b">
         <div class="max-w-4xl mx-auto">
             <div class="flex items-center justify-center">
-                <div class="text-lg font-bold">Lycée Jacques Brel</div>
+                <div class="text-2xl font-bold">Lycée Jacques Brel</div>
             </div>
         </div>
     </header>
 
     <main class="ml-60 py-16 max-h-screen overflow-auto">
         <div class="px-6">
-            <div id="pie-charts-container" class="grid grid-cols-2 gap-4 mt-6 bg-gray-900 px-2 py-6 rounded-lg">
-
+            <div id="firstgraph" class="grid grid-cols-2 gap-4 mt-6 bg-gray-900 px-2 py-6 rounded-lg">
                 <?php foreach ($grandClientsList as $client) : ?>
                     <div class="bg-white text-gray-900 rounded-lg mt-3 p-3" id="chart-<?php echo htmlspecialchars($client); ?>">
                         <h2 class="text-2xl text-center font-bold leading-none mb-4">
