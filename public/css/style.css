@@ -4,13 +4,23 @@
 
 * {
   font-family: "Helvetica Neue", sans-serif;
+  scroll-behavior: smooth;
 }
 
 ::selection {
-  background-color: #e845456a;
+  background-color: #ff8d2a94;
   color: #fff;
 }
 
 ::-webkit-scrollbar {
-  width: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
 }
