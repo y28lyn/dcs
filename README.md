@@ -1,6 +1,6 @@
 **Projet DCS - Etude de cas BI**
 
-Ce projet GitHub contient une étude de cas en Business Intelligence (BI) pour la DSI infrastructure d'un grand groupe du secteur banque/finance/assurance. L'objectif est de créer une solution d'hébergement informatique et de réaliser une analyse des coûts et des métriques associées.
+Ce projet contient une étude de cas en Business Intelligence (BI) pour la DSI infrastructure d'un grand groupe du secteur banque/finance/assurance. L'objectif est de créer une solution d'hébergement informatique et de réaliser une analyse des coûts et des métriques associées.
 
 **Contenu du Projet :**
 
