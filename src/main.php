@@ -1,5 +1,4 @@
 <?php
-
 include '../includes/connexion.php';
 try {
     $sql = "SELECT gc.NomGrandClient, a.nomAppli AS Application ,SUM(lf.prix) AS ChiffreAffaires FROM grandclients gc JOIN clients c ON gc.GrandClientID = c.GrandClientID JOIN centresactivite ca ON c.CentreActiviteID = ca.CentreActiviteID JOIN ligne_facturation lf ON ca.CentreActiviteID = lf.CentreActiviteID JOIN application a ON lf.IRT = a.IRT WHERE gc.NomGrandClient = 'Client1' GROUP BY gc.GrandClientID,a.nomAppli ORDER BY ChiffreAffaires DESC LIMIT 10;";
@@ -35,9 +34,8 @@ try {
 } catch (PDOException $e) {
     echo "Erreur : " . $e->getMessage();
 }
+?>
 
-
- ?>
 <!DOCTYPE html>
 <html x-data="data()" lang="fr">
 
@@ -47,7 +45,6 @@ try {
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet"/>
     <link href="../public/css/style.css" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body>
@@ -384,5 +381,6 @@ try {
     </script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </body>
 </html>
