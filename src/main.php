@@ -178,19 +178,17 @@
                     },
                     labels: chartData.map(a => a.Application),
                     dataLabels: {
-                        enabled: true // Conserve les étiquettes de pourcentage sur les parts de tarte
+                        enabled: true
                     },
                     legend: {
-                        show: true, // S'assurer que la légende est affichée
+                        show: true,
                         formatter: function(val, opts) {
-                            // Affiche le numéro de classement à côté de chaque élément de la légende
                             return (opts.seriesIndex + 1) + '. ' + val;
                         }
                     },
                     tooltip: {
                         y: {
                             formatter: function(value) {
-                                // Formatez la valeur en devise avec le symbole Euro
                                 return new Intl.NumberFormat('fr-FR', {
                                     style: 'currency',
                                     currency: 'EUR'
