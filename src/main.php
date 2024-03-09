@@ -83,20 +83,34 @@
     <header class="z-50 fixed right-0 top-0 left-60 bg-yellow-50 px-4 py-5 border-b">
         <div class="max-w-4xl mx-auto">
             <div class="flex items-center justify-center">
-                <div class="text-2xl font-bold">Lycée Jacques Brel</div>
+                <div class="text-2xl font-bold bg-yellow-200 rounded-xl text-yellow-900 py-3 px-4">Lycée Jacques Brel</div>
             </div>
         </div>
     </header>
 
     <main class="ml-60 py-16 max-h-screen overflow-auto">
-        <div class="px-6">
-            <div id="firstgraph" class="grid grid-cols-2 gap-4 mt-6 bg-gray-900 px-2 py-6 rounded-lg">
+        <div class="p-6">
+            <div id="firstgraph" class="grid grid-cols-2 gap-4 mt-6 bg-amber-200 px-2 py-6 rounded-lg shadow-lg">
+                <div class="px-6 py-4">
+                    <select id="clientSelector" class="block w-full px-4 py-2 border rounded-lg shadow-lg focus:outline-none focus:ring">
+                        <?php
+                        $firstClientSelected = true;
+                        foreach ($grandClientsList as $client) : ?>
+                            <option value="<?php echo htmlspecialchars($client); ?>" <?php if ($firstClientSelected) {
+                                                                                            echo "selected";
+                                                                                            $firstClientSelected = false;
+                                                                                        } ?>>
+                                <?php echo htmlspecialchars($client); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
                 <?php foreach ($grandClientsList as $client) : ?>
-                    <div class="bg-white text-gray-900 rounded-lg mt-3 p-3" id="chart-<?php echo htmlspecialchars($client); ?>">
-                        <h2 class="text-2xl text-center font-bold leading-none mb-4">
+                    <div class="bg-white text-gray-900 rounded-lg shadow-lg mt-3 p-3 client-chart" id="chart-<?php echo htmlspecialchars($client); ?>" style="display:none;">
+                        <h2 class="text-2xl text-center font-bold leading-none mb-4 bg-yellow-200 rounded-xl text-yellow-900 py-3 px-4">
                             Top 10 des applications pour <?php echo htmlspecialchars($client); ?>
                         </h2>
-                        <div id="pie-chart-top-10"></div>
+                        <div class="pie-chart" id="pie-chart-<?php echo htmlspecialchars($client); ?>"></div>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -106,16 +120,15 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var allResults = <?php echo json_encode($allResults); ?>;
-
-            for (let client in allResults) {
-                createPieChart(allResults[client], `chart-${client}`);
-            }
+            var clientSelector = document.getElementById('clientSelector');
+            var charts = document.querySelectorAll('.client-chart');
 
             function createPieChart(chartData, elementId) {
                 let options = {
                     series: chartData.map(a => parseFloat(a.ChiffreAffaires)),
                     chart: {
                         type: 'donut',
+                        height: 400
                     },
                     labels: chartData.map(a => a.Application),
                     legend: {
@@ -123,8 +136,43 @@
                     },
                 };
 
-                let chart = new ApexCharts(document.getElementById(elementId), options);
+                let chartElement = document.getElementById(elementId);
+                let chart = new ApexCharts(chartElement, options);
                 chart.render();
+            }
+
+            clientSelector.addEventListener('change', function() {
+                var selectedClient = this.value;
+
+                charts.forEach(function(chart) {
+                    chart.style.display = 'none';
+                });
+
+                var selectedChart = document.getElementById('chart-' + selectedClient);
+                if (selectedChart) {
+                    selectedChart.style.display = 'block';
+                }
+            });
+
+            charts.forEach(function(chart) {
+                chart.style.display = 'none';
+            });
+
+            for (let client in allResults) {
+                createPieChart(allResults[client], `pie-chart-${client}`);
+            }
+
+            updateDisplayedChart(clientSelector.value);
+
+            function updateDisplayedChart(clientName) {
+                charts.forEach(function(chart) {
+                    chart.style.display = 'none';
+                });
+
+                var selectedChart = document.getElementById('chart-' + clientName);
+                if (selectedChart) {
+                    selectedChart.style.display = 'block';
+                }
             }
         });
     </script>
