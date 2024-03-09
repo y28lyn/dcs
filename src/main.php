@@ -75,7 +75,7 @@
 
 
 
-    <aside class="fixed inset-y-0 left-0 bg-white shadow-md max-h-screen w-60">
+    <aside class="hidden md:block fixed inset-y-0 left-0 bg-white shadow-md max-h-screen w-60">
         <div class="flex flex-col justify-between h-full">
             <div class="flex-grow">
                 <div class="px-4 py-6 text-center border-b">
@@ -117,7 +117,7 @@
         </div>
     </aside>
 
-    <header class="z-50 fixed right-0 top-0 left-60 bg-yellow-50 px-4 py-5 border-b">
+    <header class="z-50 fixed right-0 top-0 left-0 md:left-60 bg-yellow-50 px-4 py-5 border-b">
         <div class="max-w-4xl mx-auto">
             <div class="flex items-center justify-center">
                 <div class="text-2xl font-bold bg-yellow-200 rounded-xl text-yellow-900 py-3 px-4">Lycée Jacques Brel</div>
@@ -125,7 +125,7 @@
         </div>
     </header>
 
-    <main class="ml-60 py-16 px-6 max-h-screen overflow-auto">
+    <main class="ml-0 md:ml-60 py-16 px-6 max-h-screen overflow-auto">
         <div class="mt-12 p-6 bg-amber-200 rounded-lg shadow-lg">
             <div id="firstgraph" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="flex flex-col gap-2">
@@ -141,7 +141,7 @@
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <img src="https://doodleipsum.com/700/flat?i=cb18d2d67e21960ac197ae2fdcd48336" alt="">
+                    <img class="hidden md:block" src="https://doodleipsum.com/700/flat?i=cb18d2d67e21960ac197ae2fdcd48336" alt="">
                 </div>
                 <?php foreach ($grandClientsList as $client) : ?>
                     <div class="bg-white text-gray-900 rounded-lg shadow-lg p-3 client-chart" id="chart-<?php echo htmlspecialchars($client); ?>" style="display:none;">
@@ -300,7 +300,14 @@
                     }
                 },
                 xaxis: {
-                    type: 'datetime'
+                    type: 'datetime',
+                    labels: {
+                        formatter: function(value, timestamp) {
+                            var date = new Date(timestamp);
+                            var monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+                            return date.getFullYear().toString().substr(-2) + ' ' + monthNames[date.getMonth()];
+                        }
+                    }
                 }
             };
 
