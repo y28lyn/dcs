@@ -19,15 +19,15 @@
     foreach ($grandClientsList as $client) {
         try {
             $sql = "SELECT gc.NomGrandClient, a.nomAppli AS Application, SUM(lf.prix) AS ChiffreAffaires
-                    FROM grandclients gc
-                    JOIN clients c ON gc.GrandClientID = c.GrandClientID
-                    JOIN centresactivite ca ON c.CentreActiviteID = ca.CentreActiviteID
-                    JOIN ligne_facturation lf ON ca.CentreActiviteID = lf.CentreActiviteID
-                    JOIN application a ON lf.IRT = a.IRT
-                    WHERE gc.NomGrandClient = :clientName
-                    GROUP BY gc.NomGrandClient, a.nomAppli
-                    ORDER BY ChiffreAffaires DESC
-                    LIMIT 10 ;";
+                FROM grandclients gc
+                JOIN clients c ON gc.GrandClientID = c.GrandClientID
+                JOIN centresactivite ca ON c.CentreActiviteID = ca.CentreActiviteID
+                JOIN ligne_facturation lf ON ca.CentreActiviteID = lf.CentreActiviteID
+                JOIN application a ON lf.IRT = a.IRT
+                WHERE gc.NomGrandClient = :clientName
+                GROUP BY gc.NomGrandClient, a.nomAppli
+                ORDER BY ChiffreAffaires DESC
+                LIMIT 10;";
             $requete = $pdo->prepare($sql);
             $requete->bindParam(':clientName', $client, PDO::PARAM_STR);
             $requete->execute();
@@ -36,7 +36,44 @@
             echo 'Erreur : ' . $e->getMessage();
         }
     }
+
+    $topClientsSql = "
+    SELECT gc.NomGrandClient, SUM(lf.volume) AS TotalVolume
+    FROM grandclients gc
+    JOIN clients c ON gc.GrandClientID = c.GrandClientID
+    JOIN ligne_facturation lf ON c.CentreActiviteID = lf.CentreActiviteID
+    WHERE lf.mois BETWEEN '2021-01-01' AND '2022-04-30'
+    GROUP BY gc.NomGrandClient
+    ORDER BY TotalVolume DESC
+    LIMIT 5
+    ";
+    $topClientsStmt = $pdo->prepare($topClientsSql);
+    $topClientsStmt->execute();
+    $topClients = $topClientsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $clientMonthlyAmounts = [];
+    foreach ($topClients as $client) {
+        $clientSql = "
+        SELECT lf.mois, SUM(lf.prix) AS MonthlyAmount
+        FROM ligne_facturation lf
+        JOIN clients c ON c.CentreActiviteID = lf.CentreActiviteID
+        JOIN grandclients gc ON c.GrandClientID = gc.GrandClientID
+        WHERE gc.NomGrandClient = :NomGrandClient
+        AND lf.mois BETWEEN '2021-01-01' AND '2022-04-30'
+        GROUP BY lf.mois
+        ORDER BY lf.mois
+        ";
+        $clientStmt = $pdo->prepare($clientSql);
+        $clientStmt->bindValue(':NomGrandClient', $client['NomGrandClient']);
+        $clientStmt->execute();
+        $monthlyAmounts = $clientStmt->fetchAll(PDO::FETCH_ASSOC);
+        $clientMonthlyAmounts[$client['NomGrandClient']] = $monthlyAmounts;
+    }
+
+    $jsonMonthlySalesData = json_encode($clientMonthlyAmounts);
     ?>
+
+
 
     <aside class="fixed inset-y-0 left-0 bg-white shadow-md max-h-screen w-60">
         <div class="flex flex-col justify-between h-full">
@@ -88,35 +125,44 @@
         </div>
     </header>
 
-    <main class="ml-60 py-16 max-h-screen overflow-auto">
-        <div class="p-6">
-            <div id="firstgraph" class="grid grid-cols-2 gap-4 mt-6 bg-amber-200 px-2 py-6 rounded-lg shadow-lg">
-                <div class="px-6 py-4">
-                    <select id="clientSelector" class="block w-full px-4 py-2 border rounded-lg shadow-lg focus:outline-none focus:ring">
+    <main class="ml-60 py-16 px-6 max-h-screen overflow-auto">
+        <div class="mt-12 p-6 bg-amber-200 rounded-lg shadow-lg">
+            <div id="firstgraph" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <select id="clientSelector" class="block w-full px-4 py-2 border font-semibold text-yellow-900 rounded-lg shadow-lg focus:outline-none focus:ring">
                         <?php
                         $firstClientSelected = true;
                         foreach ($grandClientsList as $client) : ?>
-                            <option value="<?php echo htmlspecialchars($client); ?>" <?php if ($firstClientSelected) {
-                                                                                            echo "selected";
-                                                                                            $firstClientSelected = false;
-                                                                                        } ?>>
+                            <option class="text-yellow-900" value="<?php echo htmlspecialchars($client); ?>" <?php if ($firstClientSelected) {
+                                                                                                                    echo "selected";
+                                                                                                                    $firstClientSelected = false;
+                                                                                                                } ?>>
                                 <?php echo htmlspecialchars($client); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <?php foreach ($grandClientsList as $client) : ?>
-                    <div class="bg-white text-gray-900 rounded-lg shadow-lg mt-3 p-3 client-chart" id="chart-<?php echo htmlspecialchars($client); ?>" style="display:none;">
-                        <h2 class="text-2xl text-center font-bold leading-none mb-4 bg-yellow-200 rounded-xl text-yellow-900 py-3 px-4">
+                    <div class="bg-white text-gray-900 rounded-lg shadow-lg p-3 client-chart" id="chart-<?php echo htmlspecialchars($client); ?>" style="display:none;">
+                        <h2 class="text-xl text-center font-semibold leading-none mb-4 bg-yellow-200 rounded-xl shadow-md text-yellow-900 py-3 px-4">
                             Top 10 des applications pour <?php echo htmlspecialchars($client); ?>
                         </h2>
                         <div class="pie-chart" id="pie-chart-<?php echo htmlspecialchars($client); ?>"></div>
                     </div>
                 <?php endforeach; ?>
             </div>
+            <div id="secondgraph" class="mt-6">
+                <div class="bg-white text-gray-900 rounded-lg shadow-lg mt-3 p-3">
+                    <h2 class="text-xl text-center font-semibold leading-none mb-4 bg-yellow-200 rounded-xl shadow-md text-yellow-900 py-3 px-4">
+                        Évolution des montants pour les 5 premiers clients de janvier 2021 à avril 2022
+                    </h2>
+                    <div id="line-chart"></div>
+                </div>
+            </div>
         </div>
     </main>
 
+    <!-- Premier graphique -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var allResults = <?php echo json_encode($allResults); ?>;
@@ -174,6 +220,76 @@
                     selectedChart.style.display = 'block';
                 }
             }
+        });
+    </script>
+
+    <!-- Deuxième graphique -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var monthlySalesData = <?php echo $jsonMonthlySalesData; ?>;
+            var series = [];
+
+            for (var client in monthlySalesData) {
+                var dataSeries = {
+                    name: client,
+                    data: monthlySalesData[client].map(function(item) {
+                        return [new Date(item.mois), parseFloat(item.MonthlyAmount)];
+                    })
+                };
+                series.push(dataSeries);
+            }
+
+            var options = {
+                series: series,
+                chart: {
+                    height: 400,
+                    type: 'line',
+                    zoom: {
+                        enabled: false
+                    },
+                    locales: [{
+                        name: 'fr',
+                        options: {
+                            months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+                            shortMonths: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
+                            days: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+                            shortDays: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
+                            toolbar: {
+                                exportToSVG: "Télécharger SVG",
+                                exportToPNG: "Télécharger PNG",
+                                exportToCSV: "Télécharger CSV",
+                                menu: "Menu",
+                            }
+                        }
+                    }],
+                    defaultLocale: 'fr'
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    curve: 'straight'
+                },
+                grid: {
+                    row: {
+                        colors: ['#f3f3f3', 'transparent'],
+                        opacity: 0.5
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        formatter: function(value) {
+                            return value.toLocaleString('fr-FR') + " €";
+                        }
+                    }
+                },
+                xaxis: {
+                    type: 'datetime'
+                }
+            };
+
+            var chart = new ApexCharts(document.querySelector("#line-chart"), options);
+            chart.render();
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
