@@ -128,7 +128,7 @@
     <main class="ml-60 py-16 px-6 max-h-screen overflow-auto">
         <div class="mt-12 p-6 bg-amber-200 rounded-lg shadow-lg">
             <div id="firstgraph" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                <div class="flex flex-col gap-2">
                     <select id="clientSelector" class="block w-full px-4 py-2 border font-semibold text-yellow-900 rounded-lg shadow-lg focus:outline-none focus:ring">
                         <?php
                         $firstClientSelected = true;
@@ -141,6 +141,7 @@
                             </option>
                         <?php endforeach; ?>
                     </select>
+                    <img src="https://doodleipsum.com/700/flat?i=cb18d2d67e21960ac197ae2fdcd48336" alt="">
                 </div>
                 <?php foreach ($grandClientsList as $client) : ?>
                     <div class="bg-white text-gray-900 rounded-lg shadow-lg p-3 client-chart" id="chart-<?php echo htmlspecialchars($client); ?>" style="display:none;">
