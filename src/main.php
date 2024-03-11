@@ -71,9 +71,28 @@
     }
 
     $jsonMonthlySalesData = json_encode($clientMonthlyAmounts);
+
+    $productVolumes = [];
+    $productNames = ['PRODUIT1_1', 'PRODUIT1_4'];
+    foreach ($productNames as $productName) {
+        $productSql = "
+        SELECT lf.mois, SUM(lf.volume) AS MonthlyVolume
+        FROM ligne_facturation lf
+        INNER JOIN produit p ON p.produitID = lf.produitID
+        WHERE p.NOM_PRODUIT = :productName
+        AND lf.mois BETWEEN '2021-01-01' AND '2022-04-30'
+        GROUP BY lf.mois
+        ORDER BY lf.mois
+        ";
+        $productStmt = $pdo->prepare($productSql);
+        $productStmt->bindParam(':productName', $productName);
+        $productStmt->execute();
+        $monthlyVolumes = $productStmt->fetchAll(PDO::FETCH_ASSOC);
+        $productVolumes[$productName] = $monthlyVolumes;
+    }
+
+    $jsonProductVolumesData = json_encode($productVolumes);
     ?>
-
-
 
     <aside class="hidden md:block fixed inset-y-0 left-0 bg-white shadow-md max-h-screen w-60">
         <div class="flex flex-col justify-between h-full">
@@ -127,9 +146,9 @@
 
     <main class="ml-0 md:ml-60 py-16 px-6 max-h-screen overflow-auto">
         <div class="mt-12 p-6 bg-amber-200 rounded-lg shadow-lg">
-            <div id="firstgraph" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div id="firstgraph" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white text-gray-900 rounded-lg shadow-lg p-3">
                 <div class="flex flex-col gap-2">
-                    <select id="clientSelector" class="block w-full px-4 py-2 border font-semibold text-yellow-900 rounded-lg shadow-lg focus:outline-none focus:ring">
+                    <select id="clientSelector" class="block w-full px-4 py-2 border font-semibold bg-yellow-200 text-yellow-900 rounded-lg shadow-lg focus:outline-none focus:ring">
                         <?php
                         $firstClientSelected = true;
                         foreach ($grandClientsList as $client) : ?>
@@ -144,7 +163,7 @@
                     <img class="hidden md:block" src="https://doodleipsum.com/700/flat?i=cb18d2d67e21960ac197ae2fdcd48336" alt="">
                 </div>
                 <?php foreach ($grandClientsList as $client) : ?>
-                    <div class="bg-white text-gray-900 rounded-lg shadow-lg p-3 client-chart" id="chart-<?php echo htmlspecialchars($client); ?>" style="display:none;">
+                    <div class="client-chart" id="chart-<?php echo htmlspecialchars($client); ?>" style="display:none;">
                         <h2 class="text-xl text-center font-semibold leading-none mb-4 bg-yellow-200 rounded-xl shadow-md text-yellow-900 py-3 px-4">
                             Top 10 des applications pour <?php echo htmlspecialchars($client); ?>
                         </h2>
@@ -160,6 +179,15 @@
                     <div id="line-chart"></div>
                 </div>
             </div>
+            <div id="thirdgraph" class="mt-6">
+                <div class="bg-white text-gray-900 rounded-lg shadow-lg mt-3 p-3">
+                    <h2 class="text-xl text-center font-semibold leading-none mb-4 bg-yellow-200 rounded-xl shadow-md text-yellow-900 py-3 px-4">
+                        Évolution des volumes des produits 1_1 et 1_4
+                    </h2>
+                    <div id="volume-chart" class="chart-container"></div>
+                </div>
+            </div>
+
         </div>
     </main>
 
@@ -170,6 +198,17 @@
             var clientSelector = document.getElementById('clientSelector');
             var charts = document.querySelectorAll('.client-chart');
 
+            window.addEventListener('resize', function() {
+                let allCharts = ApexCharts.instances;
+                allCharts.forEach(function(chart) {
+                    chart.updateOptions({
+                        dataLabels: {
+                            enabled: window.innerWidth >= 768
+                        }
+                    });
+                });
+            });
+
             function createPieChart(chartData, elementId) {
                 let options = {
                     series: chartData.map(a => parseFloat(a.ChiffreAffaires)),
@@ -179,7 +218,7 @@
                     },
                     labels: chartData.map(a => a.Application),
                     dataLabels: {
-                        enabled: true
+                        enabled: window.innerWidth >= 768
                     },
                     legend: {
                         show: true,
@@ -196,7 +235,18 @@
                                 }).format(value);
                             }
                         }
-                    }
+                    },
+                    responsive: [{
+                        breakpoint: 768,
+                        options: {
+                            dataLabels: {
+                                enabled: false
+                            },
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }]
                 };
                 let chartElement = document.getElementById(elementId);
                 let chart = new ApexCharts(chartElement, options);
@@ -313,6 +363,83 @@
 
             var chart = new ApexCharts(document.querySelector("#line-chart"), options);
             chart.render();
+        });
+    </script>
+
+    <!-- Troisième graphique -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var productVolumesData = <?php echo $jsonProductVolumesData; ?>;
+            var productSeries = [];
+
+            for (var productId in productVolumesData) {
+                var productDataSeries = {
+                    name: 'Produit ' + productId,
+                    data: productVolumesData[productId].map(function(item) {
+                        return [new Date(item.mois), parseFloat(item.MonthlyVolume)];
+                    })
+                };
+                productSeries.push(productDataSeries);
+            }
+
+            var productOptions = {
+                series: productSeries,
+                chart: {
+                    height: 400,
+                    type: 'line',
+                    zoom: {
+                        enabled: false
+                    },
+                    locales: [{
+                        name: 'fr',
+                        options: {
+                            months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+                            shortMonths: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
+                            days: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+                            shortDays: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
+                            toolbar: {
+                                exportToSVG: "Télécharger SVG",
+                                exportToPNG: "Télécharger PNG",
+                                exportToCSV: "Télécharger CSV",
+                                menu: "Menu",
+                            }
+                        }
+                    }],
+                    defaultLocale: 'fr'
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    curve: 'straight'
+                },
+                grid: {
+                    row: {
+                        colors: ['#f3f3f3', 'transparent'],
+                        opacity: 0.5
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        formatter: function(value) {
+                            return value.toLocaleString('fr-FR') + " €";
+                        }
+                    }
+                },
+                xaxis: {
+                    type: 'datetime',
+                    labels: {
+                        formatter: function(value, timestamp) {
+                            var date = new Date(timestamp);
+                            var monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+                            return date.getFullYear().toString().substr(-2) + ' ' + monthNames[date.getMonth()];
+                        }
+                    }
+                }
+            };
+
+            var productChart = new ApexCharts(document.querySelector("#thirdgraph .chart-container"), productOptions);
+            productChart.render();
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
