@@ -422,7 +422,7 @@
                 yaxis: {
                     labels: {
                         formatter: function(value) {
-                            return value.toLocaleString('fr-FR') + " €";
+                            return value.toLocaleString('fr-FR');
                         }
                     }
                 },
