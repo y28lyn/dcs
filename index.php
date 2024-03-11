@@ -1,6 +1,4 @@
 <?php
 session_start();
-// Redirection vers la page de connexion
-    header('Location: /dcs/src/main.php');
+header('Location: /dcs/src/login.php');
 exit();
-?>
