@@ -39,7 +39,7 @@ Ce projet contient une étude de cas en Business Intelligence (BI) pour la DSI i
 
 ## Contributeurs :
 
-- Ilyes BEIRADE, Aloys SCHER, Thomas MOLLARET
+- Ilyes BEIRADE, Aloys SCHER, Jenna BEN HADJ AMOR, Thomas MOLLARET
 
 ## Remarque :
 
