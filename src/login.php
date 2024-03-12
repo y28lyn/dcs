@@ -9,7 +9,7 @@
     <title>Dashboard DCS</title>
 </head>
 
-<body class="relative bg-[#E8D8C4] overflow-hidden max-h-screen">
+<body class="relative bg-[#E8D8C4]">
     <main class="relative">
         <section class="bg-[#E8D8C4] overflow-hidden">
             <div class="flex flex-col lg:flex-row lg:items-stretch h-screen">
@@ -23,6 +23,9 @@
 
                         <a href="main.php" class="inline-block px-4 py-4 mt-4 font-semibold text-white transition-all duration-200 bg-[#6D2932] border border-transparent rounded-md hover:bg-[#561C24] hover:scale-105 focus:bg-[#561C24]">
                             Voir les analyses
+                        </a>
+                        <a href="../public/contexte.pdf" target="_blank" class="inline-block px-4 py-4 mt-4 ml-2 font-semibold text-[#6D2932] transition-all duration-200 bg-white border border-transparent rounded-md hover:bg-[#fff8ef] hover:scale-105 focus:bg-[#fff8ef]">
+                            Voir le contexte
                         </a>
                     </div>
                 </div>
