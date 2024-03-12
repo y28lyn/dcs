@@ -1,8 +1,9 @@
-# Projet DCS - Etude de cas BI
+# <img width="30" height="30" alt="DCS Icon" src="https://github.com/y28lyn/dcs/assets/97447648/3865a9be-5568-4429-bb49-bc00b7390e55"> Projet DCS - Etude de cas BI
+
 
 Ce projet contient une étude de cas en Business Intelligence (BI) pour la DSI infrastructure d'un grand groupe du secteur banque/finance/assurance. L'objectif est de créer une solution d'hébergement informatique et de réaliser une analyse des coûts et des métriques associées.
 
-<img width="960" alt="image" src="https://github.com/y28lyn/dcs/assets/97447648/9d19671e-53f7-4765-a5b0-d1f5c308117d">
+<img width="960" alt="image" src="https://github.com/y28lyn/dcs/assets/97447648/d669b093-17b4-4ca1-9c37-1a61373c002f">
 
 ## Contenu du Projet :
 
