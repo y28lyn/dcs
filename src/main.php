@@ -8,51 +8,6 @@
     <link href="../public/css/style.css" rel="stylesheet" />
     <link rel="icon" href="../public/dcs_icon.png" />
     <title>Dashboard DCS</title>
-    <style>
-        .aside-menu {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out;
-            opacity: 0;
-        }
-
-        .aside-menu.open {
-            visibility: visible;
-            opacity: 1;
-        }
-
-
-        .aside-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 80%;
-            max-width: 300px;
-            height: 100%;
-            background-color: white;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(-100%);
-        }
-
-        .aside-content.open {
-            transform: translateX(0%);
-        }
-
-        .burger-button {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1000;
-            cursor: pointer;
-        }
-    </style>
 </head>
 
 <body class="relative bg-[#E8D8C4] overflow-hidden max-h-screen">
