@@ -141,9 +141,11 @@
     ?>
 
     <div class="burger-button" onclick="toggleAsideMenu()">
-        <svg class="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-        </svg>
+        <button class="fixed p-3 -pb-1 z-50 right-6 top-3 rounded-md shadow-lg md:hidden bg-[#301014]">
+            <svg class="w-6 h-6 text-[#E8D8C4]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
     </div>
 
     <aside class="fixed inset-y-0 left-0 bg-white shadow-md max-h-screen w-60 z-10 aside-menu aside-content" id="asideMenu">
@@ -492,6 +494,16 @@
             var asideMenu = document.getElementById('asideMenu');
             asideMenu.classList.toggle('open');
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var asideLinks = document.querySelectorAll('.aside-menu a');
+            asideLinks.forEach(function(link) {
+                link.addEventListener('click', function() {
+                    var asideMenu = document.getElementById('asideMenu');
+                    asideMenu.classList.remove('open');
+                });
+            });
+        });
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
