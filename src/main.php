@@ -8,6 +8,72 @@
     <link href="../public/css/style.css" rel="stylesheet" />
     <link rel="icon" href="../public/dcs_icon.png" />
     <title>Dashboard DCS</title>
+    <style>
+        .aside-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+        }
+
+        .aside-menu.open {
+            visibility: visible;
+            opacity: 1;
+        }
+
+
+        .aside-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 80%;
+            max-width: 300px;
+            height: 100%;
+            background-color: white;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
+        }
+
+        .aside-content.open {
+            transform: translateX(0%);
+        }
+
+        .burger-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        @media screen and (min-width: 768px) {
+
+            .aside-menu,
+            .aside-content {
+                visibility: visible;
+                opacity: 1;
+                transform: translateX(0%);
+            }
+
+            .burger-button {
+                display: none;
+            }
+        }
+
+        @media screen and (max-width: 767px) {
+
+            .burger-button {
+                display: block;
+            }
+        }
+    </style>
 </head>
 
 <body class="relative bg-[#E8D8C4] overflow-hidden max-h-screen">
@@ -145,7 +211,7 @@
         </div>
     </aside>
 
-    <main class="ml-0 md:ml-60 py-3 px-6 max-h-screen overflow-auto">
+    <main class="ml-0 md:ml-60 p-6 max-h-screen overflow-auto">
         <div class="p-6 bg-[#C7B7A3] rounded-lg shadow-lg md:mt-0 mt-12">
             <div id="firstgraph" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white text-gray-900 rounded-lg shadow-lg p-3">
                 <div class="flex flex-col gap-2">
