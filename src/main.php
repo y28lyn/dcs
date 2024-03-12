@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link href="../public/css/style.css" rel="stylesheet" />
     <link rel="icon" href="../public/dcs_icon.png" />
     <title>Dashboard DCS</title>
@@ -26,7 +25,6 @@
             visibility: visible;
             opacity: 1;
         }
-
 
         .aside-content {
             position: absolute;
@@ -68,7 +66,6 @@
         }
 
         @media screen and (max-width: 767px) {
-
             .burger-button {
                 display: block;
             }
@@ -105,15 +102,15 @@
     }
 
     $topClientsSql = "
-    SELECT gc.NomGrandClient, SUM(lf.volume) AS TotalVolume
-    FROM grandclients gc
-    JOIN clients c ON gc.GrandClientID = c.GrandClientID
-    JOIN ligne_facturation lf ON c.CentreActiviteID = lf.CentreActiviteID
-    WHERE lf.mois BETWEEN '2021-01-01' AND '2022-04-30'
-    GROUP BY gc.NomGrandClient
-    ORDER BY TotalVolume DESC
-    LIMIT 5
-    ";
+        SELECT gc.NomGrandClient, SUM(lf.volume) AS TotalVolume
+        FROM grandclients gc
+        JOIN clients c ON gc.GrandClientID = c.GrandClientID
+        JOIN ligne_facturation lf ON c.CentreActiviteID = lf.CentreActiviteID
+        WHERE lf.mois BETWEEN '2021-01-01' AND '2022-04-30'
+        GROUP BY gc.NomGrandClient
+        ORDER BY TotalVolume DESC
+        LIMIT 5
+        ";
     $topClientsStmt = $pdo->prepare($topClientsSql);
     $topClientsStmt->execute();
     $topClients = $topClientsStmt->fetchAll(PDO::FETCH_ASSOC);
