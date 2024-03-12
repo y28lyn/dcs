@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../public/css/style.css" rel="stylesheet" />
     <link rel="icon" href="../public/dcs_icon.png" />
     <title>Dashboard DCS</title>
@@ -449,7 +449,7 @@
             aside.classList.toggle('menu-open');
         }
 
-        document.addEventListener('click', function(event) {
+        document.addEventListener('DOMContentLoaded', function(event) {
             var isClickedInsideBurger = document.querySelector('.burger-menu').contains(event.target);
             var isClickedInsideAside = document.querySelector('aside').contains(event.target);
             var asideIsOpen = document.querySelector('aside').classList.contains('menu-open');
