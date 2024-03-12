@@ -4,9 +4,55 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link href="../public/css/style.css" rel="stylesheet" />
     <link rel="icon" href="../public/dcs_icon.png" />
     <title>Dashboard DCS</title>
+    <style>
+        .aside-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+        }
+
+        .aside-menu.open {
+            visibility: visible;
+            opacity: 1;
+        }
+
+
+        .aside-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 80%;
+            max-width: 300px;
+            height: 100%;
+            background-color: white;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
+        }
+
+        .aside-content.open {
+            transform: translateX(0%);
+        }
+
+        .burger-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body class="relative bg-[#E8D8C4] overflow-hidden max-h-screen">
@@ -94,7 +140,13 @@
     $jsonProductVolumesData = json_encode($productVolumes);
     ?>
 
-    <aside class="fixed inset-y-0 left-0 bg-white shadow-md max-h-screen w-60 z-10 md:block transform md:transform-none md:translate-x-0 -translate-x-full transiiton-transform duration-300 ease-in-out">
+    <div class="burger-button" onclick="toggleAsideMenu()">
+        <svg class="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </div>
+
+    <aside class="fixed inset-y-0 left-0 bg-white shadow-md max-h-screen w-60 z-10 aside-menu aside-content" id="asideMenu">
         <div class="flex flex-col justify-between h-full">
             <div class="flex-grow">
                 <div class="px-4 py-6 text-center border-b">
@@ -136,15 +188,7 @@
         </div>
     </aside>
 
-    <main class="ml-0 md:ml-60 py-3 px-6 max-h-screen overflow-auto -z-50">
-        <div class="burger-menu p-3">
-            <button class="burger-toggle fixed p-3 -pb-1 z-50 right-6 top-3 rounded-md shadow-lg md:hidden bg-[#301014]" aria-label="Toggle menu" onclick="toggleMenu()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="#E8D8C4" class="bi bi-list" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H2.5A.5.5 0 0 1 2 3v-1zm0 4a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H2.5A.5.5 0 0 1 2 7v-1zm0 4a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H2.5A.5.5 0 0 1 2 11v-1z" />
-                </svg>
-            </button>
-        </div>
-
+    <main class="ml-0 md:ml-60 py-3 px-6 max-h-screen overflow-auto">
         <div class="p-6 bg-[#C7B7A3] rounded-lg shadow-lg md:mt-0 mt-12">
             <div id="firstgraph" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white text-gray-900 rounded-lg shadow-lg p-3">
                 <div class="flex flex-col gap-2">
@@ -444,23 +488,11 @@
     </script>
 
     <script>
-        function toggleMenu() {
-            var aside = document.querySelector('aside');
-            aside.classList.toggle('menu-open');
+        function toggleAsideMenu() {
+            var asideMenu = document.getElementById('asideMenu');
+            asideMenu.classList.toggle('open');
         }
-
-        document.addEventListener('DOMContentLoaded', function(event) {
-            var isClickedInsideBurger = document.querySelector('.burger-menu').contains(event.target);
-            var isClickedInsideAside = document.querySelector('aside').contains(event.target);
-            var asideIsOpen = document.querySelector('aside').classList.contains('menu-open');
-            var isClickedOnLinkInsideAside = event.target.matches('aside a');
-
-            if (asideIsOpen && !isClickedInsideBurger && (!isClickedInsideAside || isClickedOnLinkInsideAside)) {
-                toggleMenu();
-            }
-        });
     </script>
-
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdn.tailwindcss.com"></script>
