@@ -2,6 +2,8 @@
 
 Ce projet contient une étude de cas en Business Intelligence (BI) pour la DSI infrastructure d'un grand groupe du secteur banque/finance/assurance. L'objectif est de créer une solution d'hébergement informatique et de réaliser une analyse des coûts et des métriques associées.
 
+<img width="960" alt="image" src="https://github.com/y28lyn/dcs/assets/97447648/9d19671e-53f7-4765-a5b0-d1f5c308117d">
+
 ## Contenu du Projet :
 
 ### 1. Instructions :
