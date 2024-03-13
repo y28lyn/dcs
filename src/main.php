@@ -110,7 +110,7 @@
         GROUP BY gc.NomGrandClient
         ORDER BY TotalVolume DESC
         LIMIT 5
-        ";
+    ";
     $topClientsStmt = $pdo->prepare($topClientsSql);
     $topClientsStmt->execute();
     $topClients = $topClientsStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -156,15 +156,34 @@
     }
 
     $jsonProductVolumesData = json_encode($productVolumes);
+
+    $revenueSql = "
+        SELECT
+        fam.FAMILLE_NAME,
+        DATE_FORMAT(lf.mois, '%Y-%m') AS Month,
+        SUM(lf.prix * lf.volume) AS TotalRevenue
+        FROM ligne_facturation lf
+        JOIN produit p ON lf.produitID = p.produitID
+        JOIN famille fam ON p.familleID = fam.familleID
+        GROUP BY fam.FAMILLE_NAME, Month
+        ORDER BY Month, fam.FAMILLE_NAME
+    ";
+    $revenueStmt = $pdo->prepare($revenueSql);
+    $revenueStmt->execute();
+    $revenueData = $revenueStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $jsonRevenueData = json_encode($revenueData);
     ?>
 
-    <div class="burger-button" onclick="toggleAsideMenu()">
-        <button class="fixed p-3 -pb-1 z-50 right-6 top-3 rounded-md shadow-lg md:hidden bg-[#301014]">
-            <svg class="w-6 h-6 text-[#E8D8C4]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
-        </button>
-    </div>
+    <header>
+        <div class="burger-button" onclick="toggleAsideMenu()">
+            <button class="fixed p-3 -pb-1 z-50 right-6 top-3 rounded-md shadow-lg md:hidden bg-[#301014]">
+                <svg class="w-6 h-6 text-[#E8D8C4]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
 
     <aside class="fixed inset-y-0 left-0 bg-white shadow-md max-h-screen w-60 z-10 aside-menu aside-content" id="asideMenu">
         <div class="flex flex-col justify-between h-full">
@@ -200,6 +219,20 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="text-lg mr-4" viewBox="0 0 16 16">
                                     <path d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1H2zm4 3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
                                 </svg>Troisième graphique
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#fourthgraph" class="flex bg-white hover:bg-[#E8D8C4] rounded-xl font-bold text-sm text-gray-900 py-3 px-4">
+                                <svg width="16" height="16" class="text-lg mr-4" fill="#000000" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
+                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                    <g id="SVGRepo_iconCarrier">
+                                        <g id="1adf468c34277fe2a9aa3ee4b9004872">
+                                            <path display="inline" d="M335.977,34.634l-160.603-0.479L0.5,335.183l78.006,142.662l349.025-0.066L511.5,333.731L335.977,34.634z M161.643,334.717l93.297-160.598l90.98,160.078L161.643,334.717z"> </path>
+                                        </g>
+                                    </g>
+                                </svg>
+                                Quatrième graphique
                             </a>
                         </li>
                     </ul>
@@ -251,7 +284,12 @@
                     <div id="volume-chart" class="chart-container"></div>
                 </div>
             </div>
-
+            <div id="fourthgraph" class="mt-6 bg-white text-gray-900 rounded-lg shadow-lg p-3">
+                <h2 class="text-xl text-center font-semibold leading-none mb-4 bg-[#561C24] rounded-xl shadow-md text-[#E8D8C4] py-3 px-4">
+                    Revenu par mois et famille de produits
+                </h2>
+                <div id="revenue-chart" class="chart-container"></div>
+            </div>
         </div>
     </main>
 
@@ -504,6 +542,109 @@
 
             var productChart = new ApexCharts(document.querySelector("#thirdgraph .chart-container"), productOptions);
             productChart.render();
+        });
+    </script>
+
+    <!-- Quatrième graphique -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var revenueData = <?php echo $jsonRevenueData; ?>;
+            var seriesData = {};
+            var series = [];
+            var categories = [];
+
+            // Transformer les données SQL en structure de série pour ApexCharts
+            revenueData.forEach(function(dataPoint) {
+                if (!seriesData[dataPoint.FAMILLE_NAME]) {
+                    seriesData[dataPoint.FAMILLE_NAME] = [];
+                }
+                var monthIndex = categories.indexOf(dataPoint.Month);
+                if (monthIndex === -1) {
+                    categories.push(dataPoint.Month);
+                    monthIndex = categories.length - 1;
+                }
+
+                // Initialize the corresponding array for the month if necessary
+                while (seriesData[dataPoint.FAMILLE_NAME].length < categories.length) {
+                    seriesData[dataPoint.FAMILLE_NAME].push(0);
+                }
+
+                seriesData[dataPoint.FAMILLE_NAME][monthIndex] = parseFloat(dataPoint.TotalRevenue);
+            });
+
+            Object.keys(seriesData).forEach(function(name) {
+                series.push({
+                    name: name,
+                    data: seriesData[name]
+                });
+            });
+
+            var revenueOptions = {
+                series: series,
+                chart: {
+                    height: 400,
+                    type: 'bar',
+                    stacked: false,
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                    },
+                },
+                stroke: {
+                    width: 1,
+                    colors: ['#fff']
+                },
+                title: {
+                    text: 'Revenu mensuel par famille de produits'
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                xaxis: {
+                    categories: categories,
+                    title: {
+                        text: 'Mois'
+                    }
+                },
+                yaxis: {
+                    title: {
+                        text: 'Revenu total'
+                    },
+                    labels: {
+                        formatter: function(value) {
+                            return value.toLocaleString('fr-FR') + " €";
+                        }
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(val) {
+                            return val.toLocaleString('fr-FR') + " €";
+                        }
+                    }
+                },
+                fill: {
+                    opacity: 1
+                },
+                legend: {
+                    position: 'right',
+                    offsetY: 40
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        legend: {
+                            position: 'bottom',
+                            offsetX: -10,
+                            offsetY: 0
+                        }
+                    }
+                }]
+            };
+
+            var revenueChart = new ApexCharts(document.querySelector("#revenue-chart"), revenueOptions);
+            revenueChart.render();
         });
     </script>
 
